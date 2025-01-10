@@ -1,6 +1,7 @@
 const express = require('express');
 const dotenv = require('dotenv');
 const mongoose = require('mongoose');
+const errorHandler = require('./middleware/errorHandler');
 const jwt = require('jsonwebtoken');
 dotenv.config();
 
@@ -20,6 +21,7 @@ const connectDb = async () => {
 connectDb();
 
 app.use(express.json());
+app.use(errorHandler);
 app.use('/api', require('./routes/apiRouter'));
 
 app.listen(port, () => console.log(`Server running on port ${port}`));
