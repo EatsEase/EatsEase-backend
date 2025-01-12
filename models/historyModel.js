@@ -1,11 +1,7 @@
 const mongoose = require('mongoose');
 
-const historySchema = new mongoose.Schema(
+const historyDetailSchema = new mongoose.Schema(
     {
-        user_name:{
-            type: String,
-            required: true
-        },
         menu_name:{
             type: String,
             required: true
@@ -14,10 +10,27 @@ const historySchema = new mongoose.Schema(
             type: Number,
             required: true
         },
+        restaurant_name:{
+            type: String,
+            required: true
+        },
         date:{
             type: Date,
             required: true
         }
+    },
+);
+
+const historySchema = new mongoose.Schema(
+    {
+        user_name:{
+            type: String,
+            required: true
+        },
+        history_detail:{
+            type: [historyDetailSchema],
+            required: true
+        },
     },
     { collection: 'History', versionKey: false }
 );

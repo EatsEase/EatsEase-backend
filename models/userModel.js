@@ -14,6 +14,10 @@ const userSchema = new mongoose.Schema(
             type: String,
             required: true
         },
+        jwt:{
+            type: String,
+            required: true
+        }
     },
     { collection: 'User', versionKey: false }
 

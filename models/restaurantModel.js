@@ -34,7 +34,7 @@ const restaurantSchema = new mongoose.Schema(
             type: String,
             required: true
         },
-        restaurnat_menu:{
+        restaurant_menu:{
             type: Array,
             required: true
         }
