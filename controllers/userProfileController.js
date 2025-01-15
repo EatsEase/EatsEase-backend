@@ -29,6 +29,7 @@ const updateUserProfileHandler = async (req, res) => {
 }
 
 const updateReactionToMenuHandler = async (req, res) => {
+    //ทำเพึ่มห้ามมี liked_menu ใน disliked_menu
     try {
         const userProfile = await userProfileModel.findOne({ username: req.params.username });
         if (userProfile) {
