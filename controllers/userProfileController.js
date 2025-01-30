@@ -12,6 +12,24 @@ const getUserProfileHandler = async (req, res) => {
     }
 }
 
+const updateDistanceHandler = async (req, res) => {
+    try {
+        const userProfile = await userProfileModel.findOne({ username: req.params.username });
+        if (!userProfile) {
+            res.status(404).json({ message: "User Profile not found" });
+        }
+        else {
+            userProfile.distance = req.body.distance;
+            const updatedUserProfile = await userProfileModel.findOneAndUpdate({ username: req.params.username }, {distance_in_km_preference: req.body.distance}, { new: true });
+            res.status(200).json(updatedUserProfile);
+        }
+    }
+    catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Server Error" });
+    }
+}
+
 const updateUserProfileHandler = async (req, res) => {
     try {
         const userProfile = await userProfileModel.findOne({ username: req.params.username });
@@ -53,4 +71,4 @@ const updateReactionToMenuHandler = async (req, res) => {
     }
 }
 
-module.exports = { getUserProfileHandler, updateUserProfileHandler, updateReactionToMenuHandler };
+module.exports = { getUserProfileHandler, updateDistanceHandler, updateUserProfileHandler, updateReactionToMenuHandler };

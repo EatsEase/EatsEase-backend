@@ -4,7 +4,6 @@ const { getHistoryHandler, updateHistoryHandler, createHistoryHandler, deleteHis
 const router = express.Router();
 
 router.route('/:username').get(getHistoryHandler);
-router.route('/create').post(createHistoryHandler);
 router.route('/update/:username').put(updateHistoryHandler);
 
 // more like clear history

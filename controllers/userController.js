@@ -1,9 +1,12 @@
 const userModel = require('../models/userModel');
+const historyModel = require('../models/historyModel');
+const userProfileModel = require('../models/userProfileModel');
 const asyncHandler = require('express-async-handler');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 
 const signupHandler = asyncHandler(async (req, res) => {
+    // Signup and create history, user profile as a default
     try {
         const { user_name, user_email, user_password } = req.body;
         const email = await userModel.findOne({ user_email: user_email });
@@ -18,6 +21,10 @@ const signupHandler = asyncHandler(async (req, res) => {
                 user_email: user_email,
                 user_password: bcrypt.hashSync(user_password, 10),
             });
+            const createHistory = await historyModel.create({ user_name: user_name, history_detail: [] });
+            const createUserProfile = await userProfileModel.create({ user_name: user_name, food_preferences:[], allergies:[], distance_in_km_preference: 0, liked_menu: [], disliked_menu: [] });
+            console.log("History of user: "+ user_name + "was successfully created"+ createHistory);
+            console.log("User Profile of user: "+ user_name + "was successfully created"+ createUserProfile);
             res.status(201).json(newUser);
         }
     } catch (error) {

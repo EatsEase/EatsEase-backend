@@ -36,7 +36,6 @@ const createRestaurantHandler = asyncHandler(async (req, res) => {
             const newRestaurant = await restaurantModel.create(req.body);
             res.status(201).json(newRestaurant);
         }
-        res.status(201).json(restaurant);
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: "Server Error" });

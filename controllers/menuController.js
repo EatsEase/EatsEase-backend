@@ -1,5 +1,16 @@
 const menuModel = require("../models/menuModel");
+const menuCategoryModel = require("../models/menuCategoryModel");
 const asyncHandler = require("express-async-handler");
+
+const getAllMenuHandler = asyncHandler(async (req, res) => {
+    try {
+        const menus = await menuModel.find();
+        res.status(200).json(menus);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Server Error" });
+    }
+});
 
 const getRequestedMenuHandler = asyncHandler(async (req, res) => {
     try {
@@ -14,7 +25,8 @@ const getRequestedMenuHandler = asyncHandler(async (req, res) => {
     });
 
 const createMenuHandler = asyncHandler(async (req, res) => {
-    console.log(menuModel);
+    // Create a new menu item and check if the menu category exists
+    // If it doesn't exist, create a new menu category
     try {
         if (!req.body.menu_name || !req.body.menu_price || !req.body.menu_category){
             res.status(400).json({ message: "Invalid request" });
@@ -23,11 +35,19 @@ const createMenuHandler = asyncHandler(async (req, res) => {
         if (menu) {
             res.status(400).json({ message: "Menu already exists" });
         }
-        else if (menuModel.validate(req.body)){
+        for (let i = 0; i < req.body.menu_category.length; i++) {
+            const category = await menuCategoryModel.findOne({ category_name: req.body.menu_category[i] });
+            if (!category) {
+                menuCategoryModel.create({ category_name: req.body.menu_category[i] });
+            }
+        }
+        if (menuModel.validate(req.body)){
             const newMenu = await menuModel.create(req.body);
             res.status(201).json(newMenu);
         }
-        res.status(201).json(menu);
+        else {
+            res.status(400).json({ message: "Invalid request" });
+        }
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: "Server Error" });
@@ -72,4 +92,4 @@ const deleteMenuHandler = asyncHandler(async (req, res) => {
     }
 });
 
-module.exports = { getRequestedMenuHandler, createMenuHandler, updateMenuHandler, deleteMenuHandler };
+module.exports = { getAllMenuHandler, getRequestedMenuHandler, createMenuHandler, updateMenuHandler, deleteMenuHandler };
