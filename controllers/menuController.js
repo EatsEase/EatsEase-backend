@@ -54,6 +54,53 @@ const createMenuHandler = asyncHandler(async (req, res) => {
     }
 });
 
+const createMultipleMenuHandler = asyncHandler(async (req, res) => {
+    try {
+        // Extract menu_list from request body
+        const { menu_list } = req.body;
+
+        // Validate that menu_list exists and is an array
+        if (!Array.isArray(menu_list) || menu_list.length === 0) {
+            return res.status(400).json({ message: "Invalid request, menu_list must be a non-empty array" });
+        }
+
+        // Validate each menu item
+        for (const menuItem of menu_list) {
+            if (
+                !menuItem.menu_name ||
+                menuItem.menu_price === undefined ||
+                !Array.isArray(menuItem.menu_category) ||
+                !menuItem.menu_image
+            ) {
+                return res.status(400).json({ message: "Invalid request, missing required fields in one or more menu items" });
+            }
+
+            // Check if the menu already exists
+            const existingMenu = await menuModel.findOne({ menu_name: menuItem.menu_name });
+            if (existingMenu) {
+                return res.status(400).json({ message: `Menu with name "${menuItem.menu_name}" already exists` });
+            }
+
+            // Check and create missing categories
+            for (const categoryName of menuItem.menu_category) {
+                let category = await menuCategoryModel.findOne({ category_name: categoryName });
+                if (!category) {
+                    await menuCategoryModel.create({ category_name: categoryName });
+                }
+            }
+        }
+
+        // Insert all validated menu items into the database
+        const newMenus = await menuModel.insertMany(menu_list);
+        
+        res.status(201).json({ message: "Menus created successfully", menus: newMenus });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Server Error" });
+    }
+});
+
+
 const updateMenuHandler = asyncHandler(async (req, res) => {
     try {
         if (!req.body.menu_name || !req.body.menu_price || !req.body.menu_category){
@@ -92,4 +139,4 @@ const deleteMenuHandler = asyncHandler(async (req, res) => {
     }
 });
 
-module.exports = { getAllMenuHandler, getRequestedMenuHandler, createMenuHandler, updateMenuHandler, deleteMenuHandler };
+module.exports = { getAllMenuHandler, getRequestedMenuHandler, createMenuHandler, createMultipleMenuHandler, updateMenuHandler, deleteMenuHandler };

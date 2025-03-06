@@ -6,6 +6,12 @@ const userProfileSchema = new mongoose.Schema(
             type: String,
             required: true
         },
+        gender:{
+            type: String,
+        },
+        age:{
+            type: Number,
+        },
         food_preferences:{
             type: Array,
             required: true
@@ -14,9 +20,17 @@ const userProfileSchema = new mongoose.Schema(
             type: Number,
             required: true
         },
+        price_range:{
+            type: String,
+            required: true
+        },
         allergies:{
             type: Array,
             required: true
+        },
+        current_liked_menu:{
+            type: Array,
+            default: []
         },
         liked_menu:{
             type: Array,
@@ -26,6 +40,10 @@ const userProfileSchema = new mongoose.Schema(
             type: Array,
             required: true
         },
+        finalized_menu:{
+            type: Array,
+            required: true
+        }
     },
     { collection: 'UserProfile', versionKey: false }
 );

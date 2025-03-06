@@ -14,6 +14,10 @@ const menuSchema = new mongoose.Schema(
             type: [String],
             required: true
         },
+        menu_image: {
+            type: String,
+            required: true
+        },
     },
     { collection: 'Menu' , versionKey: false}
 

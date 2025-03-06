@@ -8,7 +8,7 @@ const bcrypt = require('bcryptjs');
 const signupHandler = asyncHandler(async (req, res) => {
     // Signup and create history, user profile as a default
     try {
-        const { user_name, user_email, user_password } = req.body;
+        const { user_name, user_email, user_password, gender, age } = req.body;
         const email = await userModel.findOne({ user_email: user_email });
         const username = await userModel.findOne({ user_name: user_name });
         if (email) {
@@ -20,9 +20,10 @@ const signupHandler = asyncHandler(async (req, res) => {
                 user_name: user_name,
                 user_email: user_email,
                 user_password: bcrypt.hashSync(user_password, 10),
+                created_date: Date.now()
             });
             const createHistory = await historyModel.create({ user_name: user_name, history_detail: [] });
-            const createUserProfile = await userProfileModel.create({ user_name: user_name, food_preferences:[], allergies:[], distance_in_km_preference: 0, liked_menu: [], disliked_menu: [] });
+            const createUserProfile = await userProfileModel.create({ user_name: user_name, gender: gender, age: age, food_preferences:[], allergies:[], distance_in_km_preference: 5, price_range: "฿", liked_menu: [], disliked_menu: [], finalized_menu: [] });
             console.log("History of user: "+ user_name + "was successfully created"+ createHistory);
             console.log("User Profile of user: "+ user_name + "was successfully created"+ createUserProfile);
             res.status(201).json(newUser);
@@ -51,14 +52,4 @@ const loginHandler = asyncHandler(async (req, res) => {
 }
 );
 
-const logoutHandler = asyncHandler(async (req, res) => {
-    try {
-        res.status(200).json({ message: 'User logged out' });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Server Error' });
-    }
-}
-);
-
-module.exports = { signupHandler, loginHandler, logoutHandler };
+module.exports = { signupHandler, loginHandler };

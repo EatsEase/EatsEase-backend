@@ -14,6 +14,10 @@ const userSchema = new mongoose.Schema(
             type: String,
             required: true
         },
+        created_date: {
+            type: Date,
+            default: Date.now
+        },
     },
     { collection: 'User', versionKey: false }
 
