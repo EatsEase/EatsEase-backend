@@ -7,5 +7,6 @@ router.use('/restaurant', require('./restaurantRoutes'));
 router.use('/user', require('./userRoutes'));
 router.use('/userProfile', require('./userProfileRoutes'));
 router.use('/history', require('./historyRoutes'));
+router.use('/allergies', require('./allergiesRoutes'));
 
 module.exports = router;
