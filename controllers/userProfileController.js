@@ -65,31 +65,6 @@ const getCurrentLikedMenuHandler = async (req, res) => {
     }
 }
 
-const updateCurrentLikedMenuHandler = async (req, res) => {
-    try {
-        const userProfile = await userProfileModel.findOne({ user_name: req.params.username });
-
-        if (!userProfile) {
-            return res.status(404).json({ message: "User Profile not found" });
-        }
-
-        if (userProfile.current_liked_menu.length === 5) {
-            return res.status(400).json({ message: "Current Liked Menu is full" });
-        }
-
-        const updatedUserProfile = await userProfileModel.findOneAndUpdate(
-            { user_name: req.params.username },
-            { $push: { current_liked_menu: req.body.current_liked_menu } },
-            { new: true }
-        );
-
-        return res.status(200).json({current_liked_menu: updatedUserProfile.current_liked_menu});
-    } catch (error) {
-        console.error(error);
-        return res.status(500).json({ message: "Server Error" });
-    }
-}
-
 const updateLikedMenuHandler = async (req, res) => {
     try {
         const userProfile = await userProfileModel.findOne({ user_name: req.params.username });
@@ -98,18 +73,47 @@ const updateLikedMenuHandler = async (req, res) => {
             return res.status(404).json({ message: "User Profile not found" });
         }
 
+        if (userProfile.current_liked_menu.length === 5) {
+            return res.status(409).json({ message: "Current Liked Menu is full" });
+        }
+
         const updatedUserProfile = await userProfileModel.findOneAndUpdate(
             { user_name: req.params.username },
-            { $push: { liked_menu: req.body.liked_menu } },
+            { $push: { liked_menu: req.body.liked_menu, current_liked_menu: req.body.liked_menu } },
             { new: true }
         );
+        console.log(updatedUserProfile.current_liked_menu);
 
-        return res.status(200).json(updatedUserProfile.liked_menu);
+        return res.status(200).json({liked_menu: updatedUserProfile.liked_menu, current_liked_menu: updatedUserProfile.current_liked_menu, count: updatedUserProfile.current_liked_menu.length});
     } catch (error) {
         console.error(error);
         return res.status(500).json({ message: "Server Error" });
     }
 };
+
+const deleteCurrentLikedMenuHandler = async (req, res) => {
+    try {
+        const userProfile = await userProfileModel.findOne({ user_name: req.params.username });
+        const { menu_name } = req.body;
+
+        if (!userProfile) {
+            return res.status(404).json({ message: "User Profile not found" });
+        }
+
+        if (userProfile.current_liked_menu.includes(menu_name)) {
+            const updatedUserProfile = await userProfileModel.findOneAndUpdate(
+                { user_name: req.params.username },
+                { $pull: { current_liked_menu: menu_name } },
+                { new: true }
+            );
+
+            return res.status(200).json(updatedUserProfile);
+        }
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: "Server Error" });
+    }
+}
 
 const updateDislikedMenuHandler = async (req, res) => {
     try {
@@ -154,4 +158,4 @@ const updateFinalizedMenuHandler = async (req, res) => {
 }
 
 
-module.exports = { getUserProfileHandler, updateUserProfileHandler, getCurrentLikedMenuHandler, updateCurrentLikedMenuHandler, updateLikedMenuHandler, updateDislikedMenuHandler, updateFinalizedMenuHandler };
+module.exports = { getUserProfileHandler, updateUserProfileHandler, getCurrentLikedMenuHandler, deleteCurrentLikedMenuHandler, updateLikedMenuHandler, updateDislikedMenuHandler, updateFinalizedMenuHandler };
