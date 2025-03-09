@@ -12,6 +12,7 @@ const getUserProfileHandler = async (req, res) => {
             return res.status(200).json({
                 userProfile: userProfile,
                 age: age,
+                user_email: user.user_email,
                 created_date: user.created_date
             });
         }
