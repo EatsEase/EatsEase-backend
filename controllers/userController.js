@@ -11,6 +11,11 @@ const signupHandler = asyncHandler(async (req, res) => {
         const { user_name, user_email, user_password, gender, birthdate } = req.body;
         const email = await userModel.findOne({ user_email: user_email });
         const username = await userModel.findOne({ user_name: user_name });
+        
+        const dateBE = birthdate;
+        const [day, month, yearBE] = dateBE.split("/").map(Number);
+        const yearAD = yearBE - 543; // Convert BE to AD
+        const birthdateFormat = new Date(yearAD, month - 1, day);
         if (email) {
             res.status(400).json({ message: 'User email already exists' });
         } else if (username) {
@@ -22,13 +27,9 @@ const signupHandler = asyncHandler(async (req, res) => {
                 user_password: bcrypt.hashSync(user_password, 10),
                 created_date: Date.now()
             });
-            const dateBE = birthdate;
-            const [day, month, yearBE] = dateBE.split("/").map(Number);
-            const yearAD = yearBE - 543; // Convert BE to AD
-            const birthdate = new Date(yearAD, month - 1, day);
 
             const createHistory = await historyModel.create({ user_name: user_name, history_detail: [] });
-            const createUserProfile = await userProfileModel.create({ user_name: user_name, gender: gender, birthdate: birthdate, food_preferences:[], allergies:[], distance_in_km_preference: 5, price_range: "฿", liked_menu: [], disliked_menu: [], finalized_menu: [] });
+            const createUserProfile = await userProfileModel.create({ user_name: user_name, gender: gender, birthdate: birthdateFormat, food_preferences:[], allergies:[], distance_in_km_preference: 5, price_range: "฿", liked_menu: [], disliked_menu: [], finalized_menu: [] });
             console.log("History of user: "+ user_name + "was successfully created"+ createHistory);
             console.log("User Profile of user: "+ user_name + "was successfully created"+ createUserProfile);
             res.status(201).json(newUser);
