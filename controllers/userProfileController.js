@@ -52,6 +52,7 @@ const getCurrentLikedMenuHandler = async (req, res) => {
         const menu_list = [];
         for (let i = 0; i < userProfile.current_liked_menu.length; i++) {
             const menu = await menuModel.findOne({ menu_name: userProfile.current_liked_menu[i] }, {menu_name: 1, menu_image: 1});
+            console.log(menu);
             menu_list.push(menu);
         }
         const count = userProfile.current_liked_menu.length;
