@@ -11,11 +11,13 @@ const signupHandler = asyncHandler(async (req, res) => {
         const { user_name, user_email, user_password, gender, birthdate } = req.body;
         const email = await userModel.findOne({ user_email: user_email });
         const username = await userModel.findOne({ user_name: user_name });
-        
-        const dateBE = birthdate;
+
+        const dateBE = birthdate.replace(" BE", "");
         const [day, month, yearBE] = dateBE.split("/").map(Number);
+        console.log(day, month, yearBE);
         const yearAD = yearBE - 543; // Convert BE to AD
         const birthdateFormat = new Date(yearAD, month - 1, day);
+
         if (email) {
             res.status(400).json({ message: 'User email already exists' });
         } else if (username) {
