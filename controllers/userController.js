@@ -8,7 +8,7 @@ const bcrypt = require('bcryptjs');
 const signupHandler = asyncHandler(async (req, res) => {
     // Signup and create history, user profile as a default
     try {
-        const { user_name, user_email, user_password, gender, age } = req.body;
+        const { user_name, user_email, user_password, gender, birthdate } = req.body;
         const email = await userModel.findOne({ user_email: user_email });
         const username = await userModel.findOne({ user_name: user_name });
         if (email) {
@@ -23,7 +23,7 @@ const signupHandler = asyncHandler(async (req, res) => {
                 created_date: Date.now()
             });
             const createHistory = await historyModel.create({ user_name: user_name, history_detail: [] });
-            const createUserProfile = await userProfileModel.create({ user_name: user_name, gender: gender, age: age, food_preferences:[], allergies:[], distance_in_km_preference: 5, price_range: "฿", liked_menu: [], disliked_menu: [], finalized_menu: [] });
+            const createUserProfile = await userProfileModel.create({ user_name: user_name, gender: gender, birthdate: birthdate, food_preferences:[], allergies:[], distance_in_km_preference: 5, price_range: "฿", liked_menu: [], disliked_menu: [], finalized_menu: [] });
             console.log("History of user: "+ user_name + "was successfully created"+ createHistory);
             console.log("User Profile of user: "+ user_name + "was successfully created"+ createUserProfile);
             res.status(201).json(newUser);

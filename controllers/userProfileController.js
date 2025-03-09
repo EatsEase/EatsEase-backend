@@ -8,8 +8,10 @@ const getUserProfileHandler = async (req, res) => {
         const user = await userModel.findOne({ user_name: req.params.username });
 
         if (userProfile && user) {
+            const age = new Date().getFullYear() - new Date(userProfile.birthdate).getFullYear();
             return res.status(200).json({
                 userProfile: userProfile,
+                age: age,
                 created_date: user.created_date
             });
         }

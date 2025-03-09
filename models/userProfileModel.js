@@ -9,8 +9,8 @@ const userProfileSchema = new mongoose.Schema(
         gender:{
             type: String,
         },
-        age:{
-            type: Number,
+        birthdate:{
+            type: Date,
         },
         food_preferences:{
             type: Array,
