@@ -14,6 +14,10 @@ const historyDetailSchema = new mongoose.Schema(
             type: String,
             required: true
         },
+        restaurant_location_link:{
+            type: String,
+            required: true
+        },
         date:{
             type: Date,
             required: true

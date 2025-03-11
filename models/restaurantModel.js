@@ -26,6 +26,10 @@ const restaurantSchema = new mongoose.Schema(
             type: Number,
             required: true
         },
+        restaurant_location_link:{
+            type: String,
+            required: true
+        },
         restaurant_description:{
             type: String,
             required: true

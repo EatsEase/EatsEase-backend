@@ -180,16 +180,30 @@ const updateFinalizeRestaurantHandler = async (req, res) => {
         );
 
         if (updatedUserProfile.current_finalized_menu != "" && updatedUserProfile.current_finalized_restaurant != "") {
+            const clearCurrentLikedMenu = await userProfileModel.findOneAndUpdate(
+                { user_name: req.params.username },
+                { $set: { current_liked_menu: [] } },
+                { new: true }
+            );
+            console.log(clearCurrentLikedMenu);
             const restaurant = await restaurantModel.findOne({ restaurant_name: updatedUserProfile.current_finalized_restaurant });
             if (!restaurant) {
                 return res.status(404).json({ message: "Restaurant not found" });
             }
             const updatedHistory = await historyModel.findOneAndUpdate(
                 { user_name: req.params.username },
-                { $push: { history_detail: { menu_name: updatedUserProfile.current_finalized_menu, restaurant_name: updatedUserProfile.current_finalized_restaurant, restaurant_location: restaurant.restaurant_location, date: Date.now() } } },
+                { $push: { history_detail: { menu_name: updatedUserProfile.current_finalized_menu, restaurant_name: updatedUserProfile.current_finalized_restaurant, restaurant_location: restaurant.restaurant_location, restaurant_location_link: restaurant.restaurant_location_link, date: Date.now() } } },
                 { new: true }
             );
-            return res.status(200).json(updatedHistory);
+            console.log(updatedHistory);
+
+            const formatted_json = {
+                menu_name: updatedUserProfile.current_finalized_menu,
+                restaurant: restaurant,
+                date: new Date(Date.now())
+            }
+
+            return res.status(200).json(formatted_json);
         }
 
         return res.status(200).json(updatedUserProfile);
