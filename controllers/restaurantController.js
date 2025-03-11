@@ -1,5 +1,6 @@
 const restaurantModel = require("../models/restaurantModel");
 const asyncHandler = require("express-async-handler");
+const userProfileModel = require("../models/userProfileModel");
 
 const getAllRestaurantHandler = asyncHandler(async (req, res) => {
     try {
@@ -80,4 +81,21 @@ const deleteRestaurantHandler = asyncHandler(async (req, res) => {
     }
 });
 
-module.exports = { getAllRestaurantHandler, getRequestedRestaurantHandler, createRestaurantHandler, updateRestaurantHandler, deleteRestaurantHandler };
+const getQueryRestaurantHandler = asyncHandler(async (req, res) => {
+    //handle price_range, distance, menu query
+    try {
+        // const userProfile = await userProfileModel.findOne({ user_name: req.params.username });
+        // if (!userProfile) {
+        //     return res.status(404).json({ message: "User Profile not found" });
+        // }
+        const restaurants = await restaurantModel.find();
+        const formatted_restaurants = restaurants.map(restaurant => ({restaurant_name: restaurant.restaurant_name, restaurant_location: restaurant.restaurant_location, lat: restaurant.restaurant_latitude, long: restaurant.restaurant_longtitude}))
+        res.status(200).json(formatted_restaurants);
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Server Error" });
+    }
+});
+
+module.exports = { getAllRestaurantHandler, getRequestedRestaurantHandler, createRestaurantHandler, updateRestaurantHandler, deleteRestaurantHandler, getQueryRestaurantHandler };

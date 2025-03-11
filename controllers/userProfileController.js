@@ -1,6 +1,8 @@
 const userProfileModel = require('../models/userProfileModel');
 const userModel = require('../models/userModel');
 const menuModel = require('../models/menuModel');
+const historyModel = require('../models/historyModel');
+const restaurantModel = require('../models/restaurantModel');
 
 const getUserProfileHandler = async (req, res) => {
     try {
@@ -150,7 +152,9 @@ const updateFinalizedMenuHandler = async (req, res) => {
 
         const updatedUserProfile = await userProfileModel.findOneAndUpdate(
             { user_name: req.params.username },
-            { $push: { finalized_menu: req.body.finalized_menu } },
+            { $push: { finalized_menu: req.body.finalized_menu },
+              $set: { current_finalized_menu: req.body.finalized_menu}
+            },
             { new: true }
         );
 
@@ -161,5 +165,39 @@ const updateFinalizedMenuHandler = async (req, res) => {
     }
 }
 
+const updateFinalizeRestaurantHandler = async (req, res) => {
+    try {
+        const userProfile = await userProfileModel.findOne({ user_name: req.params.username });
 
-module.exports = { getUserProfileHandler, updateUserProfileHandler, getCurrentLikedMenuHandler, deleteCurrentLikedMenuHandler, updateLikedMenuHandler, updateDislikedMenuHandler, updateFinalizedMenuHandler };
+        if (!userProfile) {
+            return res.status(404).json({ message: "User Profile not found" });
+        }
+
+        const updatedUserProfile = await userProfileModel.findOneAndUpdate(
+            { user_name: req.params.username },
+            { $set: { current_finalized_restaurant: req.body.finalized_restaurant } },
+            { new: true }
+        );
+
+        if (updatedUserProfile.current_finalized_menu != "" && updatedUserProfile.current_finalized_restaurant != "") {
+            const restaurant = await restaurantModel.findOne({ restaurant_name: updatedUserProfile.current_finalized_restaurant });
+            if (!restaurant) {
+                return res.status(404).json({ message: "Restaurant not found" });
+            }
+            const updatedHistory = await historyModel.findOneAndUpdate(
+                { user_name: req.params.username },
+                { $push: { history_detail: { menu_name: updatedUserProfile.current_finalized_menu, restaurant_name: updatedUserProfile.current_finalized_restaurant, restaurant_location: restaurant.restaurant_location, date: Date.now() } } },
+                { new: true }
+            );
+            return res.status(200).json(updatedHistory);
+        }
+
+        return res.status(200).json(updatedUserProfile);
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: "Server Error" });
+    }
+}
+
+
+module.exports = { getUserProfileHandler, updateUserProfileHandler, getCurrentLikedMenuHandler, deleteCurrentLikedMenuHandler, updateLikedMenuHandler, updateDislikedMenuHandler, updateFinalizedMenuHandler, updateFinalizeRestaurantHandler };

@@ -32,6 +32,14 @@ const userProfileSchema = new mongoose.Schema(
             type: Array,
             default: []
         },
+        current_finalized_menu:{
+            type: String,
+            default: ""
+        },
+        current_finalized_restaurant:{
+            type: String,
+            default: ""
+        },
         liked_menu:{
             type: Array,
             required: true

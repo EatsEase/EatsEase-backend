@@ -6,11 +6,11 @@ const historyDetailSchema = new mongoose.Schema(
             type: String,
             required: true
         },
-        menu_price:{
-            type: Number,
+        restaurant_name:{
+            type: String,
             required: true
         },
-        restaurant_name:{
+        restaurant_location:{
             type: String,
             required: true
         },
