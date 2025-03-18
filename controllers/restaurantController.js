@@ -85,8 +85,8 @@ const deleteRestaurantHandler = asyncHandler(async (req, res) => {
 const getQueryRestaurantHandler = asyncHandler(async (req, res) => {
     //handle price_range, distance, menu query
     try {
-        const { user_lat, user_long } = req.body;
-        const userProfile = await userProfileModel.findOne({ user_name: req.params.username });
+        const { user_name, user_lat, user_long } = req.body;
+        const userProfile = await userProfileModel.findOne({ user_name: user_name });
         if (!userProfile) {
             return res.status(404).json({ message: "User Profile not found" });
         }
