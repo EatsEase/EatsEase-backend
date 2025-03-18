@@ -7,6 +7,6 @@ router.route('/:restaurant_name').get(getRequestedRestaurantHandler);
 router.route('/create').post(createRestaurantHandler);
 router.route('/edit/:restaurant_name').put(updateRestaurantHandler);
 router.route('/delete/:restaurant_name').delete(deleteRestaurantHandler);
-router.route('/query/:username').get(getQueryRestaurantHandler);
+router.route('/query/:username').post(getQueryRestaurantHandler);
 
 module.exports = router;
