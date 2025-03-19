@@ -1,6 +1,7 @@
 const restaurantModel = require("../models/restaurantModel");
 const asyncHandler = require("express-async-handler");
 const userProfileModel = require("../models/userProfileModel");
+const { distance_to_km } = require("../utils/utils.js");
 
 const getAllRestaurantHandler = asyncHandler(async (req, res) => {
     try {
@@ -83,42 +84,76 @@ const deleteRestaurantHandler = asyncHandler(async (req, res) => {
 
 
 const getQueryRestaurantHandler = asyncHandler(async (req, res) => {
-    //handle price_range, distance, menu query
     try {
         const { user_name, user_lat, user_long } = req.body;
         const userProfile = await userProfileModel.findOne({ user_name: user_name });
+        console.log(userProfile.current_finalized_menu);
+
         if (!userProfile) {
             return res.status(404).json({ message: "User Profile not found" });
         }
 
-        //calculate distance in km
-        const haversineDistance = (lat1, lon1, lat2, lon2) => {
-            const toRadians = (angle) => (angle * Math.PI) / 180;
-            
-            const R = 6371; // Radius of Earth in kilometers
-            const dLat = toRadians(lat2 - lat1);
-            const dLon = toRadians(lon2 - lon1);
-        
-            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                      Math.cos(toRadians(lat1)) * Math.cos(toRadians(lat2)) *
-                      Math.sin(dLon / 2) * Math.sin(dLon / 2);
-        
-            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-            return parseFloat((R * c).toFixed(2)); // Round to 2 decimal places
-        };
+        let restaurants = [];
 
-        const restaurants = await restaurantModel.find();
-        const mapped_restaurants = restaurants.map(restaurant => {
-            //calculate distance and round it to 2 decimal places
-            const distance = haversineDistance(user_lat, user_long, restaurant.restaurant_latitude, restaurant.restaurant_longtitude);
-            return {restaurant, distance};
+        // Step 1: Try `menu + distance + price_range` (Best Match)
+        let allRestaurants = await restaurantModel.find({
+            restaurant_menu: { $in: [userProfile.current_finalized_menu] },
+            $expr: { $lte: [{ $strLenCP: "$restaurant_price_range" }, userProfile.price_range.length] }
         });
-        res.status(200).json(mapped_restaurants);
+
+        // Calculate distances
+        const mappedRestaurants = allRestaurants.map(restaurant => {
+            const distance = distance_to_km(
+                user_lat, user_long, 
+                restaurant.restaurant_latitude, restaurant.restaurant_longtitude
+            );
+            return { ...restaurant.toObject(), distance };
+        });
+
+        // Filter by max distance
+        const max_distance = userProfile.distance_in_km_preference;
+        restaurants = mappedRestaurants.filter(r => r.distance <= max_distance);
+
+        // Step 2: If no match, try `menu + distance` (Ignore Price)
+        if (restaurants.length === 0) {
+            let menuMatchRestaurants = await restaurantModel.find({ restaurant_menu: { $in: [userProfile.current_finalized_menu] } });
+
+            // Calculate distances
+            const mappedDistanceOnly = menuMatchRestaurants.map(restaurant => {
+                const distance = distance_to_km(
+                    user_lat, user_long, 
+                    restaurant.restaurant_latitude, restaurant.restaurant_longtitude
+                );
+                return { ...restaurant.toObject(), distance };
+            });
+
+            // Filter by distance
+            restaurants = mappedDistanceOnly.filter(r => r.distance <= max_distance);
+        }
+
+        // Step 3: If no match, try `menu + price_range` (Ignore Distance)
+        if (restaurants.length === 0) {
+            restaurants = await restaurantModel.find({
+                restaurant_menu: { $in: [userProfile.current_finalized_menu] },
+                $expr: { $lte: [{ $strLenCP: "$restaurant_price_range" }, userProfile.price_range.length] }
+            });
+        }
+
+        // Step 4: If still no match, fallback to `menu-only`
+        if (restaurants.length === 0) {
+            restaurants = await restaurantModel.find({ restaurant_menu: { $in: [userProfile.current_finalized_menu] } });
+        }
+
+        // Step 5: Sort results by distance (Closest first)
+        restaurants.sort((a, b) => a.distance - b.distance);
+
+        res.status(200).json(restaurants);
 
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: "Server Error" });
     }
 });
+
 
 module.exports = { getAllRestaurantHandler, getRequestedRestaurantHandler, createRestaurantHandler, updateRestaurantHandler, deleteRestaurantHandler, getQueryRestaurantHandler };
