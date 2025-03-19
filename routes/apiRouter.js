@@ -8,5 +8,6 @@ router.use('/user', require('./userRoutes'));
 router.use('/userProfile', require('./userProfileRoutes'));
 router.use('/history', require('./historyRoutes'));
 router.use('/allergies', require('./allergiesRoutes'));
+router.use('/recommendation', require('./recommendationRoutes'));
 
 module.exports = router;

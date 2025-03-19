@@ -87,7 +87,6 @@ const getQueryRestaurantHandler = asyncHandler(async (req, res) => {
     try {
         const { user_name, user_lat, user_long } = req.body;
         const userProfile = await userProfileModel.findOne({ user_name: user_name });
-        console.log(userProfile.current_finalized_menu);
 
         if (!userProfile) {
             return res.status(404).json({ message: "User Profile not found" });
