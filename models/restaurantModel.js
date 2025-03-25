@@ -30,10 +30,6 @@ const restaurantSchema = new mongoose.Schema(
             type: String,
             required: true
         },
-        restaurant_description:{
-            type: String,
-            required: true
-        },
         restaurant_image:{
             type: String,
             required: true

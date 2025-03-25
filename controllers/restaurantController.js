@@ -44,6 +44,24 @@ const createRestaurantHandler = asyncHandler(async (req, res) => {
     }
 });
 
+const createMultipleRestaurantHandler = asyncHandler(async (req, res) => {
+    try {
+        const { restaurant_list } = req.body;
+        console.log(restaurant_list)
+
+        if (!Array.isArray(restaurant_list) || restaurant_list.length === 0) {
+            return res.status(400).json({ message: "restaurant_list must be a non-empty array" });
+        }
+
+        const created = await restaurantModel.insertMany(restaurant_list);
+        res.status(201).json({ message: "Restaurants created successfully", restaurants: created });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Server Error" });
+    }
+});
+
+
 const updateRestaurantHandler = asyncHandler(async (req, res) => {
     try {
         if (!req.body.restaurant_name || !req.body.restaurant_location || !req.body.restaurant_rating){
@@ -155,4 +173,4 @@ const getQueryRestaurantHandler = asyncHandler(async (req, res) => {
 });
 
 
-module.exports = { getAllRestaurantHandler, getRequestedRestaurantHandler, createRestaurantHandler, updateRestaurantHandler, deleteRestaurantHandler, getQueryRestaurantHandler };
+module.exports = { getAllRestaurantHandler, getRequestedRestaurantHandler, createRestaurantHandler, updateRestaurantHandler, deleteRestaurantHandler, getQueryRestaurantHandler, createMultipleRestaurantHandler };
