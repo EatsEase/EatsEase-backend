@@ -6,10 +6,6 @@ const menuSchema = new mongoose.Schema(
             type: String,
             required: true
         },
-        menu_price: {
-            type: Number,
-            required: true
-        },
         menu_category: {
             type: [String],
             required: true
