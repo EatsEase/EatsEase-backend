@@ -12,7 +12,6 @@ const menuSchema = new mongoose.Schema(
         },
         menu_image: {
             type: String,
-            required: true
         },
     },
     { collection: 'Menu' , versionKey: false}

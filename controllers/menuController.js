@@ -66,14 +66,6 @@ const createMultipleMenuHandler = asyncHandler(async (req, res) => {
 
         // Validate each menu item
         for (const menuItem of menu_list) {
-            if (
-                !menuItem.menu_name ||
-                menuItem.menu_price === undefined ||
-                !Array.isArray(menuItem.menu_category) ||
-                !menuItem.menu_image
-            ) {
-                return res.status(400).json({ message: "Invalid request, missing required fields in one or more menu items" });
-            }
 
             // Check if the menu already exists
             const existingMenu = await menuModel.findOne({ menu_name: menuItem.menu_name });
