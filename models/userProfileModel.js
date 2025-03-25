@@ -51,6 +51,11 @@ const userProfileSchema = new mongoose.Schema(
         finalized_menu:{
             type: Array,
             required: true
+        },
+        temp_recommended:{
+            type: Array,
+            required: true,
+            default: []
         }
     },
     { collection: 'UserProfile', versionKey: false }

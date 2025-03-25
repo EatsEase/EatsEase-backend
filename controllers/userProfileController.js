@@ -85,7 +85,7 @@ const updateLikedMenuHandler = async (req, res) => {
 
         const updatedUserProfile = await userProfileModel.findOneAndUpdate(
             { user_name: req.params.username },
-            { $push: { liked_menu: req.body.liked_menu, current_liked_menu: req.body.liked_menu } },
+            { $push: { liked_menu: req.body.liked_menu, current_liked_menu: req.body.liked_menu }, $set : {"temp_recommended": []} },
             { new: true }
         );
         console.log(updatedUserProfile.current_liked_menu);
@@ -131,7 +131,10 @@ const updateDislikedMenuHandler = async (req, res) => {
 
         const updatedUserProfile = await userProfileModel.findOneAndUpdate(
             { user_name: req.params.username },
-            { $push: { disliked_menu: req.body.disliked_menu } },
+            {
+                $push: { disliked_menu: req.body.disliked_menu },
+                $set: { temp_recommend: [] } // ✅ Reset recommendations
+            },
             { new: true }
         );
 
