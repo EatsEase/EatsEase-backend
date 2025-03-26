@@ -3,6 +3,7 @@ const { getHistoryHandler, updateHistoryHandler, createHistoryHandler, deleteHis
 
 const router = express.Router();
 
+router.use(verifyJWTAuth)
 router.route('/:username').get(getHistoryHandler);
 router.route('/update/:username').put(updateHistoryHandler);
 

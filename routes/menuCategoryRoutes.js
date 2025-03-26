@@ -1,7 +1,9 @@
 const express = require('express');
 const { getAllMenuCategoriesHandler, getRequestedMenuCategoriesHandler,createMenuCategoryHandler, updateMenuCategoryHandler, deleteMenuCategoryHandler } = require('../controllers/menuCategoryController');
 const router = express.Router();
+const { verifyJWTAuth } = require('../middleware/jwtAuthHandler');
 
+router.use(verifyJWTAuth)
 router.route('/all').get(getAllMenuCategoriesHandler);
 router.route('/:category_name').get(getRequestedMenuCategoriesHandler);
 router.route('/create').post(createMenuCategoryHandler);
