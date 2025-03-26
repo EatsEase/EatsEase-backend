@@ -117,8 +117,8 @@ const guestHandler = asyncHandler(async (req, res) => {
             disliked_menu: [],
             finalized_menu: []
         });
-        console.log("History of user: "+ user_name + "was successfully created"+ createHistory);
-        console.log("User Profile of user: "+ user_name + "was successfully created"+ createUserProfile);
+        console.log("History of user: "+ guestUsername + "was successfully created"+ createHistory);
+        console.log("User Profile of user: "+ guestUsername + "was successfully created"+ createUserProfile);
         
         // Generate a JWT token for the guest user (expires in 1 day)
         const token = jwt.sign({ id: newGuestUser._id, role:"guest" }, process.env.JWT_SECRET, { expiresIn: '60s' });
@@ -138,7 +138,8 @@ const logoutHandler = asyncHandler(async (req, res) => {
         }
         
         // Verify the token
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const decoded = jwt.decode(token, process.env.JWT_SECRET);
+        console.log(decoded)
 
         if (decoded.role === 'user'){
             return res.status(200).json({message: 'user logged out'})
@@ -149,6 +150,7 @@ const logoutHandler = asyncHandler(async (req, res) => {
         if (!guestUser) {
             return res.status(404).json({ message: 'Guest user not found' });
         }
+        console.log(guestUser)
         
         // Remove the guest user and their related data
         await userModel.findByIdAndDelete(decoded.id);
