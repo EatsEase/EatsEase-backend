@@ -2,7 +2,6 @@ const express = require('express');
 const dotenv = require('dotenv');
 const mongoose = require('mongoose');
 const errorHandler = require('./middleware/errorHandler');
-const jwt = require('jsonwebtoken');
 dotenv.config();
 
 const app = express();

@@ -3,7 +3,7 @@ const { getAllMenuHandler, getRequestedMenuHandler, createMenuHandler, createMul
 const { verifyJWTAuth } = require('../middleware/jwtAuthHandler');
 const router = express.Router();
 
-// router.use(verifyJWTAuth)
+router.use(verifyJWTAuth)
 router.route('/all').get(getAllMenuHandler);
 router.route('/:menu_name').get(getRequestedMenuHandler);
 router.route('/create').post(createMenuHandler);
