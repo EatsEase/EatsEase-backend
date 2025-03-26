@@ -1,5 +1,6 @@
 const express = require('express');
 const { getHistoryHandler, updateHistoryHandler, createHistoryHandler, deleteHistoryHandler } = require('../controllers/historyController');
+const { verifyJWTAuth } = require('../middleware/jwtAuthHandler');
 
 const router = express.Router();
 
