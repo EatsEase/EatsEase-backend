@@ -52,7 +52,7 @@ const userProfileSchema = new mongoose.Schema(
             type: Array,
             required: true
         },
-        temp_recommended:{
+        temp_recommend:{
             type: Array,
             required: true,
             default: []
