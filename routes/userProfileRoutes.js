@@ -1,10 +1,11 @@
 const express = require('express');
-const { getUserProfileHandler, updateUserProfileHandler, getCurrentLikedMenuHandler, deleteCurrentLikedMenuHandler, updateLikedMenuHandler, updateDislikedMenuHandler, updateFinalizedMenuHandler, updateFinalizeRestaurantHandler } = require('../controllers/userProfileController');
+const { getUserProfileHandler, updateUserProfileHandler, getCurrentLikedMenuHandler, deleteCurrentLikedMenuHandler, updateLikedMenuHandler, updateDislikedMenuHandler, updateFinalizedMenuHandler, updateFinalizeRestaurantHandler, checkTokenHandler } = require('../controllers/userProfileController');
 const { verifyJWTAuth } = require('../middleware/jwtAuthHandler');
 
 const router = express.Router();
 
 router.use(verifyJWTAuth)
+router.route('/checkToken').get(checkTokenHandler);
 router.route('/:username').get(getUserProfileHandler);
 router.route('/edit/:username').put(updateUserProfileHandler);
 router.route('/currentLiked/:username').get(getCurrentLikedMenuHandler);
