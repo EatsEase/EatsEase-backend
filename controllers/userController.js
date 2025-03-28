@@ -121,7 +121,7 @@ const guestHandler = asyncHandler(async (req, res) => {
         console.log("User Profile of user: "+ guestUsername + "was successfully created"+ createUserProfile);
         
         // Generate a JWT token for the guest user (expires in 1 day)
-        const token = jwt.sign({ id: newGuestUser._id, role:"guest" }, process.env.JWT_SECRET, { expiresIn: '60s' });
+        const token = jwt.sign({ id: newGuestUser._id, role:"guest" }, process.env.JWT_SECRET, { expiresIn: '1d' });
         
         res.status(200).json({ user: guestUsername, token });
     } catch (error) {
