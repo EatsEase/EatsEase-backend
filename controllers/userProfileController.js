@@ -85,7 +85,7 @@ const updateLikedMenuHandler = async (req, res) => {
 
         const updatedUserProfile = await userProfileModel.findOneAndUpdate(
             { user_name: req.params.username },
-            { $push: { liked_menu: req.body.liked_menu, current_liked_menu: req.body.liked_menu }, $set : {"temp_recommended": []} },
+            { $push: { liked_menu: req.body.liked_menu, current_liked_menu: req.body.liked_menu }, $set : {"temp_recommend": []} },
             { new: true }
         );
         console.log(updatedUserProfile.current_liked_menu);
