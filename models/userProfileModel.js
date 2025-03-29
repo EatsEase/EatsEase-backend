@@ -56,6 +56,10 @@ const userProfileSchema = new mongoose.Schema(
             type: Array,
             required: true,
             default: []
+        },
+        cold_start:{
+            type: Array,
+            default: []
         }
     },
     { collection: 'UserProfile', versionKey: false }
