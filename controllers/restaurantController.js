@@ -111,58 +111,96 @@ const getQueryRestaurantHandler = asyncHandler(async (req, res) => {
         }
 
         let restaurants = [];
+        const max_distance = userProfile.distance_in_km_preference;
 
-        // Step 1: Try `menu + distance + price_range` (Best Match)
+        // ✅ Helper function to calculate distance safely
+        const calculateDistance = (restaurant) => {
+            if (!restaurant || !restaurant.restaurant_latitude || !restaurant.restaurant_longtitude) {
+                return Infinity; // Skip invalid data
+            }
+
+            const distance = distance_to_km(
+                parseFloat(user_lat),
+                parseFloat(user_long),
+                parseFloat(restaurant.restaurant_latitude),
+                parseFloat(restaurant.restaurant_longtitude)
+            );
+
+            return distance || Infinity;
+        };
+
+        // ✅ Helper to convert single object to array
+        const toArray = (item) => (Array.isArray(item) ? item : item ? [item] : []);
+
+        // ✅ Step 1: Try `menu + distance + price_range` (Best Match)
         let allRestaurants = await restaurantModel.find({
             restaurant_menu: { $in: [userProfile.current_finalized_menu] },
             $expr: { $lte: [{ $strLenCP: "$restaurant_price_range" }, userProfile.price_range.length] }
         });
 
-        // Calculate distances
-        const mappedRestaurants = allRestaurants.map(restaurant => {
-            const distance = distance_to_km(
-                user_lat, user_long, 
-                restaurant.restaurant_latitude, restaurant.restaurant_longtitude
-            );
-            return { ...restaurant.toObject(), distance };
-        });
+        allRestaurants = toArray(allRestaurants);
 
-        // Filter by max distance
-        const max_distance = userProfile.distance_in_km_preference;
-        restaurants = mappedRestaurants.filter(r => r.distance <= max_distance);
+        // ✅ Map and calculate distances correctly
+        const mappedRestaurants = allRestaurants.map((restaurant) => ({
+            ...restaurant.toObject(),
+            distance: calculateDistance(restaurant)
+        }));
 
-        // Step 2: If no match, try `menu + distance` (Ignore Price)
+        // ✅ Filter by max distance
+        restaurants = mappedRestaurants.filter((r) => r.distance <= max_distance);
+
+        // ✅ Step 2: If no match, try `menu + distance` (Ignore Price)
         if (restaurants.length === 0) {
-            let menuMatchRestaurants = await restaurantModel.find({ restaurant_menu: { $in: [userProfile.current_finalized_menu] } });
-
-            // Calculate distances
-            const mappedDistanceOnly = menuMatchRestaurants.map(restaurant => {
-                const distance = distance_to_km(
-                    user_lat, user_long, 
-                    restaurant.restaurant_latitude, restaurant.restaurant_longtitude
-                );
-                return { ...restaurant.toObject(), distance };
+            let menuMatchRestaurants = await restaurantModel.find({
+                restaurant_menu: { $in: [userProfile.current_finalized_menu] }
             });
 
-            // Filter by distance
-            restaurants = mappedDistanceOnly.filter(r => r.distance <= max_distance);
+            menuMatchRestaurants = toArray(menuMatchRestaurants);
+
+            // ✅ Map and calculate distances again
+            const mappedDistanceOnly = menuMatchRestaurants.map((restaurant) => ({
+                ...restaurant.toObject(),
+                distance: calculateDistance(restaurant)
+            }));
+
+            // ✅ Filter by distance
+            restaurants = mappedDistanceOnly.filter((r) => r.distance <= max_distance);
         }
 
-        // Step 3: If no match, try `menu + price_range` (Ignore Distance)
+        // ✅ Step 3: If no match, try `menu + price_range` (Ignore Distance)
         if (restaurants.length === 0) {
-            restaurants = await restaurantModel.find({
+            let priceMatchRestaurants = await restaurantModel.find({
                 restaurant_menu: { $in: [userProfile.current_finalized_menu] },
                 $expr: { $lte: [{ $strLenCP: "$restaurant_price_range" }, userProfile.price_range.length] }
             });
+
+            priceMatchRestaurants = toArray(priceMatchRestaurants);
+            restaurants = priceMatchRestaurants.map((restaurant) => ({
+                ...restaurant.toObject(),
+                distance: calculateDistance(restaurant)
+            }));
         }
 
-        // Step 4: If still no match, fallback to `menu-only`
+        // ✅ Step 4: If still no match, fallback to `menu-only`
         if (restaurants.length === 0) {
-            restaurants = await restaurantModel.find({ restaurant_menu: { $in: [userProfile.current_finalized_menu] } });
+            let menuOnlyRestaurants = await restaurantModel.find({
+                restaurant_menu: { $in: [userProfile.current_finalized_menu] }
+            });
+
+            menuOnlyRestaurants = toArray(menuOnlyRestaurants);
+            restaurants = menuOnlyRestaurants.map((restaurant) => ({
+                ...restaurant.toObject(),
+                distance: calculateDistance(restaurant)
+            }));
         }
 
-        // Step 5: Sort results by distance (Closest first)
+        // ✅ Step 5: Sort results by distance (Closest first)
         restaurants.sort((a, b) => a.distance - b.distance);
+
+        // ✅ Return results or no matches
+        if (restaurants.length === 0) {
+            return res.status(404).json({ message: "No matching restaurants found." });
+        }
 
         res.status(200).json(restaurants);
 
@@ -171,6 +209,7 @@ const getQueryRestaurantHandler = asyncHandler(async (req, res) => {
         res.status(500).json({ message: "Server Error" });
     }
 });
+
 
 
 module.exports = { getAllRestaurantHandler, getRequestedRestaurantHandler, createRestaurantHandler, updateRestaurantHandler, deleteRestaurantHandler, getQueryRestaurantHandler, createMultipleRestaurantHandler };
