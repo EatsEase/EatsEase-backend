@@ -4,11 +4,13 @@
    ```bash
    git clone
     ```
-2. Install npm dependencies:
+2. Create .env file from sample.env
+3. Install npm dependencies:
     ```bash
     npm install
     ```
-3. Run the application:
+4. Run the application:
     ```bash
     npm run start
     ```
+    
